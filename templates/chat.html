@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Anonymous CLI Chat</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h3>Notice: Sexual messages are not allowed. The admin knows who you are.</h3>
+  <div class="chat-box">
+    {% for msg in messages %}
+      <div>[{{ msg.timestamp.strftime('%H:%M:%S') }}] {{ msg.username }}: {{ msg.text }}</div>
+    {% endfor %}
+  </div>
+  <form method="post" action="/send">
+    <input type="text" name="text" placeholder="Type your message..." autofocus required />
+    <button type="submit">Send</button>
+  </form>
+</body>
+</html>
+

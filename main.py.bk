@@ -1,0 +1,73 @@
+from fastapi import FastAPI, Request, Form, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from datetime import datetime, timedelta
+
+from sqlalchemy.orm import Session
+from database import get_db
+from models import Message
+from datetime import datetime, timedelta
+
+import random
+
+from models import Message
+from database import SessionLocal, engine, Base
+from auth import router as auth_router, get_current_user
+
+# Create tables
+Base.metadata.create_all(bind=engine)
+
+# App setup
+app = FastAPI()
+app.include_router(auth_router, prefix="/auth")
+templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Display messages (last 24 hours)
+@app.get("/", response_class=HTMLResponse)
+def index(request: Request):
+    db = SessionLocal()
+    now = datetime.utcnow()
+    cutoff = now - timedelta(hours=24)
+    messages = db.query(Message).filter(Message.timestamp > cutoff).order_by(Message.timestamp).all()
+    return templates.TemplateResponse("chat.html", {"request": request, "messages": messages})
+@app.get("/admin/logs")
+def get_chat_logs(db: Session = Depends(get_db)):
+    cutoff = datetime.utcnow() - timedelta(hours=24)
+    messages = db.query(Message).filter(Message.timestamp > cutoff).order_by(Message.timestamp).all()
+    return [
+        {
+            "timestamp": msg.timestamp.isoformat(),
+            "username": msg.username,
+            "real_username": msg.real_username,
+            "ip_address": msg.ip_address,
+            "text": msg.text,
+        }
+        for msg in messages
+    ]
+
+# Handle sending messages
+@app.post("/send")
+async def send_message(
+    request: Request,
+    text: str = Form(...),
+    user = Depends(get_current_user),
+):
+    db = SessionLocal()
+
+    # Temporary anonymous name
+    anon_id = f"anonymous{random.randint(10000, 99999)}"
+    client_ip = request.client.host
+
+    msg = Message(
+        username=anon_id,
+        text=text.strip(),
+        ip_address=client_ip,
+        real_username=user.username  # visible to admin only
+    )
+    db.add(msg)
+    db.commit()
+
+    return RedirectResponse("/", status_code=303)
+

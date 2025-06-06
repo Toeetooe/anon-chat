@@ -1,0 +1,11 @@
+INFO:     103.121.226.79:0 - "GET / HTTP/1.1" 200 OK
+INFO:     103.121.226.79:0 - "GET /static/style.css HTTP/1.1" 200 OK
+INFO:     103.121.226.79:0 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     103.121.226.79:0 - "POST /send HTTP/1.1" 303 See Other
+INFO:     103.121.226.79:0 - "GET / HTTP/1.1" 200 OK
+INFO:     103.121.226.79:0 - "POST /send HTTP/1.1" 303 See Other
+INFO:     103.121.226.79:0 - "GET / HTTP/1.1" 200 OK
+INFO:     103.121.226.79:0 - "POST /send HTTP/1.1" 303 See Other
+INFO:     103.121.226.79:0 - "GET / HTTP/1.1" 200 OK
+INFO:     185.218.84.178:0 - "GET / HTTP/1.1" 200 OK
+/ HTTP/1.1" 200 OK
